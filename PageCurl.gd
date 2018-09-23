@@ -35,6 +35,10 @@ func _process(delta):
 	
 	if _isDragged:
 		localPosition = TOUCH
+		
+	_front.position = TOUCH
+	_mask.rect_position = mask_position()
+	_mask2.rect_position = mask_position()
 	var theta    : float = atan2(virtual_position().x, virtual_position().y)
 	var rotation : float = -(90 - rad2deg(theta)) * 2
 	_front.rotation = deg2rad(rotation)
@@ -50,10 +54,14 @@ func _input(event):
 			_mask2.rect_position = mask_position()
 		else:
 			_isDragged = false
+			var tween = $Tween
+			tween.interpolate_property(self, "TOUCH",
+			TOUCH, 
+			_position, 
+			0.5,
+			Tween.TRANS_LINEAR, Tween.EASE_OUT)
+			tween.start()
 
 	if (event is InputEventMouseMotion) or (event is InputEventScreenDrag):
 		if _isDragged:
 			TOUCH = event.position
-			_front.position = TOUCH
-			_mask.rect_position = mask_position()
-			_mask2.rect_position = mask_position()
