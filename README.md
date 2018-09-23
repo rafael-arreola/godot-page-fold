@@ -1,2 +1,2 @@
-# godot-page-curl
-Curl Effect For mobile
+# godot-page-fold
+Fold Effect For mobile
