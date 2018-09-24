@@ -6,8 +6,8 @@ var touch_position  : Vector2
 var start_position  : Vector2
 
 #Nodes
-var background    : Sprite
-var front         : Sprite
+var background    : TextureRect
+var front         : TextureRect
 var mask1         : ColorRect
 var mask2         : ColorRect
 var dragged       : bool
@@ -20,15 +20,15 @@ export(Texture) var TEXTURE
 
 var accumulate = 0
 func _ready():
-	background = $Background
-	front      = $Front as Sprite
-	mask1      = $Mask1 as ColorRect
-	mask2      = $Mask2 as ColorRect
+	background = $Background as TextureRect
+	front      = $Front      as TextureRect
+	mask1      = $Mask1      as ColorRect
+	mask2      = $Mask2      as ColorRect
 	
 	screen_size         = get_viewport().size;
 	configure()
 	start_position      = get_start_position()
-	front.position      = start_position
+	front.rect_position      = start_position
 	touch_position      = start_position
 	mask1.rect_position = get_mask_position()
 	mask2.rect_position = get_mask_position()
@@ -93,16 +93,15 @@ func fold():
 		RIGHT_BOTTOM:
 			rotation_mask1 = deg2rad( (rotation * 0.5) + 180 )
 			rotation_mask2 = deg2rad( (rotation * 0.5) + 90  )
-	front.position      = touch_position
+	front.rect_position      = touch_position
 	mask1.rect_position = get_mask_position()
 	mask2.rect_position = get_mask_position()
-	front.rotation      = deg2rad(rotation) 
-	mask1.set_rotation( rotation_mask1 )
-	mask2.set_rotation( rotation_mask2 )
+	front.set_rotation( deg2rad(rotation) )
+	mask1.set_rotation( rotation_mask1    )
+	mask2.set_rotation( rotation_mask2    )
 
 func configure():
-	front.flip_h = true
-	front.flip_v = false
+	front.rect_scale = Vector2(1, -1)
 	mask1.color = COLOR
 	mask2.color = COLOR
 	if TEXTURE:
@@ -111,17 +110,17 @@ func configure():
 	
 	match FOLD_POSITION: #Change pivot position
 		LEFT_TOP:
-			front.offset = Vector2(-front.get_texture().get_size().x, 0)
+			front.rect_scale = Vector2(-1, 1)
 			mask1.rect_scale = Vector2(1, -1)
 			mask2.rect_scale = Vector2(1, -1)
 		LEFT_BOTTOM:
-			front.offset = Vector2(-front.get_texture().get_size().x, -front.get_texture().get_size().y)
+			front.rect_scale = Vector2(-1, -1)
 			mask1.rect_scale = Vector2(1, 1)
 			mask2.rect_scale = Vector2(-1, -1)
 		RIGHT_TOP:
-			front.offset = Vector2(0, 0)
+			front.rect_scale = Vector2(1, 1)
 		RIGHT_BOTTOM:
-			front.offset = Vector2(0, -front.get_texture().get_size().y)
+			front.rect_scale = Vector2(1, -1)
 			mask1.rect_scale = Vector2(1, -1)
 			mask2.rect_scale = Vector2(-1, 1)
 
@@ -132,7 +131,7 @@ func _input(event):
 	if (event is InputEventMouseButton) or (event is InputEventScreenTouch):
 		if event.pressed:
 			dragged = true
-			front.position = touch_position
+			front.rect_position = touch_position
 			mask1.rect_position = get_mask_position()
 			mask2.rect_position = get_mask_position()
 		else:
