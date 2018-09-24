@@ -17,7 +17,9 @@ size_flags_vertical = 1
 script = ExtResource( 1 )
 _sections_unfolded = [ "Pause", "Rect", "Theme" ]
 PADDING = 80.0
-FOLD_POSITION = 3
+FOLD_POSITION = 0
+COLOR = Color( 0.27451, 0.27451, 0.27451, 1 )
+TEXTURE = null
 
 [node name="Background" type="Sprite" parent="."]
 scale = Vector2( 0.731617, 0.685535 )

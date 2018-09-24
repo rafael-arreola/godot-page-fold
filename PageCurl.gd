@@ -6,6 +6,7 @@ var touch_position  : Vector2
 var start_position  : Vector2
 
 #Nodes
+var background    : Sprite
 var front         : Sprite
 var mask1         : ColorRect
 var mask2         : ColorRect
@@ -14,12 +15,15 @@ var deg = 1
 enum FOLD_POSITIONS { LEFT_TOP, RIGHT_TOP, LEFT_BOTTOM, RIGHT_BOTTOM }
 export var PADDING : float = 80
 export(FOLD_POSITIONS) var FOLD_POSITION = RIGHT_TOP
+export var COLOR : Color = Color.gray
+export(Texture) var TEXTURE
 
 var accumulate = 0
 func _ready():
-	front  = $Front as Sprite
-	mask1  = $Mask1 as ColorRect
-	mask2  = $Mask2 as ColorRect
+	background = $Background
+	front      = $Front as Sprite
+	mask1      = $Mask1 as ColorRect
+	mask2      = $Mask2 as ColorRect
 	
 	screen_size         = get_viewport().size;
 	configure()
@@ -99,6 +103,12 @@ func fold():
 func configure():
 	front.flip_h = true
 	front.flip_v = false
+	mask1.color = COLOR
+	mask2.color = COLOR
+	if TEXTURE:
+		background.texture = TEXTURE;
+		front.texture = TEXTURE
+	
 	match FOLD_POSITION: #Change pivot position
 		LEFT_TOP:
 			front.offset = Vector2(-front.get_texture().get_size().x, 0)
@@ -129,7 +139,8 @@ func _input(event):
 			dragged = false
 			var tween = $Tween
 			tween.interpolate_property(self, "touch_position", touch_position, 
-						start_position, 1, Tween.TRANS_CUBIC, Tween.EASE_OUT).start()
+						start_position, 1, Tween.TRANS_CUBIC, Tween.EASE_OUT)
+			tween.start()
 	
 	if (event is InputEventMouseMotion) or (event is InputEventScreenDrag):
 		if dragged:
