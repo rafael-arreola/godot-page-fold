@@ -16,7 +16,8 @@ size_flags_horizontal = 1
 size_flags_vertical = 1
 script = ExtResource( 1 )
 _sections_unfolded = [ "Pause", "Rect", "Theme" ]
-_padding = null
+PADDING = 80.0
+FOLD_POSITION = 3
 
 [node name="Background" type="Sprite" parent="."]
 scale = Vector2( 0.731617, 0.685535 )
@@ -24,23 +25,17 @@ texture = ExtResource( 2 )
 centered = false
 _sections_unfolded = [ "Offset", "Transform" ]
 
-[node name="FrontBackground" type="Sprite" parent="."]
-position = Vector2( 902.487, -26.8531 )
+[node name="Front" type="Sprite" parent="."]
 scale = Vector2( 0.731617, 0.685535 )
 texture = ExtResource( 2 )
 centered = false
-flip_h = true
-_sections_unfolded = [ "Offset", "Transform" ]
+_sections_unfolded = [ "Animation", "Material", "Offset", "Transform" ]
 
-[node name="Mask" type="ColorRect" parent="."]
+[node name="Mask1" type="ColorRect" parent="."]
 anchor_left = 0.0
 anchor_top = 0.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = 872.0
-margin_top = 477.0
-margin_right = 872.0
-margin_bottom = 477.0
 rect_pivot_offset = Vector2( 0, 0 )
 rect_clip_content = false
 mouse_filter = 0
@@ -55,10 +50,6 @@ anchor_left = 0.0
 anchor_top = 0.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-margin_left = 844.0
-margin_top = -498.0
-margin_right = 844.0
-margin_bottom = -498.0
 rect_pivot_offset = Vector2( 0, 0 )
 rect_clip_content = false
 mouse_filter = 0

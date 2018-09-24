@@ -1,67 +1,136 @@
 extends Control
 
-var SCREEN         : Vector2
-var _position      : Vector2
-var TOUCH          : Vector2
-var _front         : Sprite
-var _mask          : ColorRect
-var _mask2         : ColorRect
-var _isDragged     : bool
-export var _padding : float = 80
+#Positions
+var screen_size     : Vector2
+var touch_position  : Vector2
+var start_position  : Vector2
+
+#Nodes
+var front         : Sprite
+var mask1         : ColorRect
+var mask2         : ColorRect
+var dragged       : bool
+var deg = 1
+enum FOLD_POSITIONS { LEFT_TOP, RIGHT_TOP, LEFT_BOTTOM, RIGHT_BOTTOM }
+export var PADDING : float = 80
+export(FOLD_POSITIONS) var FOLD_POSITION = RIGHT_TOP
 
 var accumulate = 0
 func _ready():
-	SCREEN          = get_viewport().size;
-	_position       = Vector2(SCREEN.x - _padding, _padding)
-	_front          = $FrontBackground as Sprite
-	_mask           = $Mask  as ColorRect
-	_mask2           = $Mask2  as ColorRect
-	_front.position = _position
-	TOUCH           = _position
-	_mask.rect_position = mask_position()
-	_mask2.rect_position = mask_position()
-
-func virtual_position() -> Vector2:
-	return Vector2(-(SCREEN.x-TOUCH.x), -TOUCH.y)
-
-func mask_position() -> Vector2 :
-	var mask_position = ((virtual_position() / 2) as Vector2)
-	mask_position.x = abs(mask_position.x) + TOUCH.x
-	mask_position.y = mask_position.y + TOUCH.y
-	return mask_position;
+	front  = $Front as Sprite
+	mask1  = $Mask1 as ColorRect
+	mask2  = $Mask2 as ColorRect
 	
+	screen_size         = get_viewport().size;
+	configure()
+	start_position      = get_start_position()
+	front.position      = start_position
+	touch_position      = start_position
+	mask1.rect_position = get_mask_position()
+	mask2.rect_position = get_mask_position()
+
+func get_start_position() -> Vector2:
+	var init_vector : Vector2;
+	match FOLD_POSITION:
+		LEFT_TOP:
+			init_vector = Vector2(PADDING, PADDING)
+		LEFT_BOTTOM:
+			init_vector = Vector2(PADDING, screen_size.y - PADDING)
+		RIGHT_TOP:
+			init_vector = Vector2(screen_size.x - PADDING, PADDING)
+		RIGHT_BOTTOM:
+			init_vector = Vector2(screen_size.x - PADDING, screen_size.y - PADDING)
+	return init_vector
+
+func get_real_position() -> Vector2:
+	var real_position : Vector2
+	match FOLD_POSITION:
+		LEFT_TOP:
+			real_position = Vector2(touch_position.x, -touch_position.y)
+		LEFT_BOTTOM:
+			real_position = Vector2(touch_position.x, (screen_size.y-touch_position.y))
+		RIGHT_TOP:
+			real_position = Vector2(-(screen_size.x-touch_position.x), -touch_position.y)
+		RIGHT_BOTTOM:
+			real_position = Vector2(-(screen_size.x-touch_position.x), (screen_size.y-touch_position.y))
+	return real_position;
+
+func get_mask_position() -> Vector2:
+	var init_vector : Vector2 = get_real_position()
+	init_vector               = init_vector / 2
+	match FOLD_POSITION:
+		LEFT_TOP:
+			init_vector = Vector2(-init_vector.x + touch_position.x, init_vector.y + touch_position.y)
+		LEFT_BOTTOM:
+			init_vector = Vector2(-init_vector.x + touch_position.x, init_vector.y + touch_position.y)
+		RIGHT_TOP:
+			init_vector = Vector2(abs(init_vector.x) + touch_position.x, init_vector.y + touch_position.y)
+		RIGHT_BOTTOM:
+			init_vector = Vector2(abs(init_vector.x) + touch_position.x, abs(init_vector.y) + touch_position.y)
+	return init_vector
+
+func fold():
+	var rotation       : float
+	var rotation_mask1 : float
+	var rotation_mask2 : float
+	var current_position = get_real_position()
+	var theta            = atan2(current_position.x, current_position.y)
+	rotation             = (-(90 - rad2deg(theta)) * 2)
+	match FOLD_POSITION:
+		LEFT_TOP:
+			rotation_mask1 = deg2rad( (rotation * 0.5) - 180 )
+			rotation_mask2 = deg2rad( (rotation * 0.5) - 90  )
+		LEFT_BOTTOM:
+			rotation_mask1 = deg2rad( (rotation * 0.5) - 180 )
+			rotation_mask2 = deg2rad( (rotation * 0.5) - 90  )
+		RIGHT_TOP:	
+			rotation_mask1 = deg2rad( (rotation * 0.5) + 180 )
+			rotation_mask2 = deg2rad( (rotation * 0.5) + 90  )
+		RIGHT_BOTTOM:
+			rotation_mask1 = deg2rad( (rotation * 0.5) + 180 )
+			rotation_mask2 = deg2rad( (rotation * 0.5) + 90  )
+	front.position      = touch_position
+	mask1.rect_position = get_mask_position()
+	mask2.rect_position = get_mask_position()
+	front.rotation      = deg2rad(rotation) 
+	mask1.set_rotation( rotation_mask1 )
+	mask2.set_rotation( rotation_mask2 )
+
+func configure():
+	front.flip_h = true
+	front.flip_v = false
+	match FOLD_POSITION: #Change pivot position
+		LEFT_TOP:
+			front.offset = Vector2(-front.get_texture().get_size().x, 0)
+			mask1.rect_scale = Vector2(1, -1)
+			mask2.rect_scale = Vector2(1, -1)
+		LEFT_BOTTOM:
+			front.offset = Vector2(-front.get_texture().get_size().x, -front.get_texture().get_size().y)
+			mask1.rect_scale = Vector2(1, 1)
+			mask2.rect_scale = Vector2(-1, -1)
+		RIGHT_TOP:
+			front.offset = Vector2(0, 0)
+		RIGHT_BOTTOM:
+			front.offset = Vector2(0, -front.get_texture().get_size().y)
+			mask1.rect_scale = Vector2(1, -1)
+			mask2.rect_scale = Vector2(-1, 1)
+
 func _process(delta):
-	var localPosition : Vector2 = _front.position
-	
-	if _isDragged:
-		localPosition = TOUCH
-		
-	_front.position = TOUCH
-	_mask.rect_position = mask_position()
-	_mask2.rect_position = mask_position()
-	var theta    : float = atan2(virtual_position().x, virtual_position().y)
-	var rotation : float = -(90 - rad2deg(theta)) * 2
-	_front.rotation = deg2rad(rotation)
-	_mask.set_rotation( deg2rad( (rotation * 0.5) + 180  ) )
-	_mask2.set_rotation( deg2rad( (rotation * 0.5) + 90 ) )
-	
+	fold()
+
 func _input(event):
 	if (event is InputEventMouseButton) or (event is InputEventScreenTouch):
 		if event.pressed:
-			_isDragged = true
-			_front.position = TOUCH
-			_mask.rect_position = mask_position()
-			_mask2.rect_position = mask_position()
+			dragged = true
+			front.position = touch_position
+			mask1.rect_position = get_mask_position()
+			mask2.rect_position = get_mask_position()
 		else:
-			_isDragged = false
+			dragged = false
 			var tween = $Tween
-			tween.interpolate_property(self, "TOUCH",
-			TOUCH, 
-			_position, 
-			0.5,
-			Tween.TRANS_LINEAR, Tween.EASE_OUT)
-			tween.start()
-
+			tween.interpolate_property(self, "touch_position", touch_position, 
+						start_position, 1, Tween.TRANS_CUBIC, Tween.EASE_OUT).start()
+	
 	if (event is InputEventMouseMotion) or (event is InputEventScreenDrag):
-		if _isDragged:
-			TOUCH = event.position
+		if dragged:
+			touch_position = event.position
