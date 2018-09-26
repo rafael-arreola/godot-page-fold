@@ -17,7 +17,7 @@ size_flags_vertical = 1
 script = ExtResource( 1 )
 _sections_unfolded = [ "Pause", "Rect", "Theme" ]
 PADDING = 80.0
-FOLD_POSITION = 3
+FOLD_POSITION = 1
 COLOR = Color( 0.619608, 0.596078, 0.596078, 1 )
 TEXTURE = null
 

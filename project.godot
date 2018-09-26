@@ -15,7 +15,7 @@ _global_script_class_icons={
 
 [application]
 
-config/name="PageCurl"
+config/name="PageFold"
 run/main_scene="res://PageCurl.tscn"
 config/icon="res://icon.png"
 
