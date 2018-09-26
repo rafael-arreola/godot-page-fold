@@ -87,17 +87,3 @@ playback/active = false
 playback/repeat = false
 playback/speed = 1.0
 
-[node name="Front2" type="Sprite" parent="."]
-visible = false
-scale = Vector2( 0.731617, 0.685535 )
-texture = ExtResource( 2 )
-centered = false
-_sections_unfolded = [ "Animation", "Material", "Offset", "Transform" ]
-
-[node name="Background2" type="Sprite" parent="."]
-visible = false
-scale = Vector2( 0.731617, 0.685535 )
-texture = ExtResource( 2 )
-centered = false
-_sections_unfolded = [ "Offset", "Transform", "Visibility" ]
-
